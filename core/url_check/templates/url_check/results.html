@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% if file_list %}
+    <ul>
+    {% for file in file_list %}
+        <li><h3>{{ file.document.name }}</h3></li>
+        <p>Result: {{ file.result }}</p>
+        <p>Calculation Time: {{ file.calc_time }}</p>
+    {% endfor %}
+    </ul>
+    <p><a href="{% url 'home' %}">Return to home</a></p>
+{% else %}
+    <p>No files are available.</p>
+    <p><a href="{% url 'home' %}">Return to home</a></p>
+{% endif %}
+</body>
+</html>

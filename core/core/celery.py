@@ -3,6 +3,8 @@ import requests
 from celery import Celery
 import time
 import django
+import json
+from django.core.files.base import ContentFile
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django.setup()
@@ -17,18 +19,19 @@ from url_check.models import Document
 def handle_uploaded_file():
     start_time = time.time()
     f = Document.objects.last()
+    res_dict = {'OK': [], 'NOT_OK': []}
     with open(f'media/{str(f.document)}') as file:
-        res_list = []
         for item in file:
 
             try:
-                res = requests.get(f'http://{item}', timeout=0.1)
-                res_list.append(res)
-
+                if requests.get(f'http://{item}', timeout=0.1).status_code == requests.codes.ok:
+                    res_dict['OK'].append(item)
+                else:
+                    res_dict['NOT_OK'].append(item)
             except (requests.ConnectionError, requests.ConnectTimeout, requests.ReadTimeout):
+                res_dict['NOT_OK'].append(item)
                 continue
-    res = all([r.status_code == requests.codes.ok for r in res_list])
+    f.result.save(name=f'{str(f.document)[:-4]}.json', content=ContentFile(json.dumps(res_dict, indent=4)))
     calc_time = time.time() - start_time
-    f.result = res
     f.calc_time = calc_time
     f.save()

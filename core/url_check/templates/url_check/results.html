@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+
 </head>
 <body>
 {% if file_list %}
     <ul>
     {% for file in file_list %}
-        <li><h3>{{ file.document.name }}</h3></li>
-        <p>Result: {{ file.result }}</p>
-        <p>Calculation Time: {{ file.calc_time }}</p>
+        <li><h3>Document: {{ file.document.name }}</h3></li>
+        {% if file.calc_time %}
+            <p>Results: <a href="{% url 'download' file.result.name %}">Download</a></p>
+            <p>Calculation Time: {{ file.calc_time }}</p>
+        {% endif %}
     {% endfor %}
     </ul>
     <p><a href="{% url 'home' %}">Return to home</a></p>
